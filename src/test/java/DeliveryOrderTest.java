@@ -3,10 +3,9 @@ import org.openqa.selenium.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Condition.exactText;
@@ -19,11 +18,8 @@ public class DeliveryOrderTest {
         Selenide.open("http://localhost:7777/");
     }
 
-    public String getDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        Calendar calendar = new GregorianCalendar();
-        calendar.add(Calendar.DAY_OF_MONTH, +7);
-        return dateFormat.format(calendar.getTime());
+    public String getDate(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     @Test
@@ -32,12 +28,12 @@ public class DeliveryOrderTest {
         $("[data-test-id=date] .input__control").click();
         $("[data-test-id=date] .input__control").sendKeys(Keys.CONTROL + "A");
         $("[data-test-id=date] .input__control").sendKeys(BACK_SPACE);
-        $("[data-test-id=date] .input__control").setValue(getDate());
+        $("[data-test-id=date] .input__control").setValue(getDate(10));
         $("[data-test-id=name] .input__control").setValue("Мадс Миккельсен");
         $("[data-test-id=phone] .input__control").setValue("+79810591703");
         $("[data-test-id=agreement]").click();
         $x("//button[contains(@class, 'button_view_extra')]").click();
         $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15));
-        $("[data-test-id=notification] [class='notification__content']").shouldHave(exactText("Встреча успешно забронирована на " + getDate()));
+        $("[data-test-id=notification] [class='notification__content']").shouldHave(exactText("Встреча успешно забронирована на " + getDate(10)));
     }
 }
